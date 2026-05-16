@@ -1,0 +1,19 @@
+﻿{
+  "ai": {
+    "configs": {},
+    "system_prompt": "你是一个专业的问题回答助手。请根据题目直接给出答案，不需要解释。",
+    "max_tokens": 256,
+    "temperature": 0.2
+  },
+  "ocr": {
+    "type": "baidu",
+    "baidu_api_key": "",
+    "baidu_secret_key": "",
+    "language": "CHN_ENG"
+  },
+  "ui": {
+    "fast_mode": true,
+    "skip_ai_when_poetry_hit": true,
+    "show_timing": true
+  }
+}

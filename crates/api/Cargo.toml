@@ -1,0 +1,17 @@
+﻿[package]
+name = "nsh-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+nsh-core = { path = "../core" }
+nsh-ai = { path = "../ai" }
+nsh-ocr = { path = "../ocr" }
+nsh-poetry = { path = "../poetry" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true

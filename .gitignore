@@ -1,0 +1,16 @@
+﻿/target/
+**/target/
+app/node_modules/
+app/dist/
+app/src-tauri/target/
+portable-*/
+*.exe
+*.msi
+*.pdb
+.DS_Store
+*.log
+.env
+.env.*
+data/settings.json
+data/*.tmp
+data/*.db

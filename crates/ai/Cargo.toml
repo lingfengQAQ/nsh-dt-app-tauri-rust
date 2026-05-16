@@ -1,0 +1,17 @@
+﻿[package]
+name = "nsh-ai"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+async-stream.workspace = true
+futures-util.workspace = true
+nsh-core = { path = "../core" }
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio-stream.workspace = true
+url.workspace = true

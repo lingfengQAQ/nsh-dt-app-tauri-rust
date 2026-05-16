@@ -1,0 +1,32 @@
+[package]
+name = "nsh-dt-tauri"
+version = "0.2.0"
+description = "NSH DT Tauri desktop host"
+authors = ["NSH DT"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "nsh_dt_tauri_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "nsh-dt-tauri"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+anyhow.workspace = true
+base64.workspace = true
+futures-util.workspace = true
+image = { version = "0.24", default-features = false, features = ["png"] }
+nsh-ai = { path = "../../crates/ai" }
+nsh-core = { path = "../../crates/core" }
+nsh-ocr = { path = "../../crates/ocr" }
+nsh-poetry = { path = "../../crates/poetry" }
+screenshots = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "2.0", features = [] }
+tokio.workspace = true

@@ -1,0 +1,13 @@
+﻿[package]
+name = "nsh-core"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+directories.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+url.workspace = true

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "NSH DT",
+  "version": "0.2.0",
+  "identifier": "com.nshdt.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "NSH DT",
+        "width": 760,
+        "height": 330,
+        "minWidth": 720,
+        "minHeight": 310,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../../data/poetry.db": "data/poetry.db",
+      "../../data/poetry_clause_index.db": "data/poetry_clause_index.db"
+    }
+  }
+}
