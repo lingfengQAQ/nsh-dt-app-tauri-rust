@@ -2,7 +2,7 @@
 name = "nsh-dt-tauri"
 version = "0.2.0"
 description = "NSH DT Tauri desktop host"
-authors = ["NSH DT"]
+authors = ["lingfengQAQ"]
 edition = "2021"
 rust-version = "1.77"
 

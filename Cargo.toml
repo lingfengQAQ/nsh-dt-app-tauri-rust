@@ -13,7 +13,7 @@ resolver = "2"
 edition = "2021"
 version = "0.2.0"
 license = "MIT"
-authors = ["nsh-dt contributors"]
+authors = ["lingfengQAQ"]
 
 [workspace.dependencies]
 anyhow = "1"
