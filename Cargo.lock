@@ -2415,6 +2415,7 @@ dependencies = [
  "nsh-poetry",
  "screenshots",
  "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
  "tokio",

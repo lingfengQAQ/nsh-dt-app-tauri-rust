@@ -28,5 +28,6 @@ nsh-ocr = { path = "../../crates/ocr" }
 nsh-poetry = { path = "../../crates/poetry" }
 screenshots = "0.8"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = { workspace = true }
 tauri = { version = "2.0", features = [] }
 tokio.workspace = true

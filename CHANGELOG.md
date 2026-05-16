@@ -6,6 +6,7 @@
 
 ### Added
 
+- 答题历史记录功能：在「设置 → 答题记录」开关启用后，每答完一题在 `data/history.jsonl` 追加一行 JSON，包含题目文本、诗词库命中、AI 1/2 答案和模型、各阶段耗时。默认关闭，仅本地落盘，不传任何服务器。
 - 开源准备：补齐 LICENSE、CONTRIBUTING、CHANGELOG、Issue/PR 模板与 GitHub Actions CI。
 
 ## [0.2.0]

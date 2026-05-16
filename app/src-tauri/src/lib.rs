@@ -66,6 +66,7 @@ struct ConfigView {
     ai: AiConfigView,
     ai_secondary: AiConfigView,
     baidu_ocr: BaiduOcrConfigView,
+    history: nsh_core::HistoryConfig,
 }
 
 #[derive(Debug, Serialize)]
@@ -97,6 +98,7 @@ struct SaveConfigInput {
     ai: Option<AiConfigInput>,
     ai_secondary: Option<AiConfigInput>,
     baidu_ocr: Option<BaiduOcrConfigInput>,
+    history: Option<nsh_core::HistoryConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -239,6 +241,9 @@ fn save_config(input: SaveConfigInput) -> Result<ConfigView, String> {
     }
     if let Some(baidu_ocr) = input.baidu_ocr {
         merge_baidu_ocr_config(&mut config, baidu_ocr);
+    }
+    if let Some(history) = input.history {
+        config.history = history;
     }
 
     nsh_core::write_config(&path, &config).map_err(command_error)?;
@@ -977,6 +982,7 @@ fn config_view(config: AppConfig, config_file: PathBuf) -> ConfigView {
                 config.baidu_ocr.secret_key.as_deref(),
             ),
         },
+        history: config.history,
     }
 }
 
@@ -1102,6 +1108,38 @@ fn command_error(error: impl std::fmt::Display) -> String {
     error.to_string()
 }
 
+fn history_path() -> Result<PathBuf, String> {
+    let app_dir: Option<&Path> = None;
+    let data_dir: Option<&Path> = None;
+    Ok(AppPaths::resolve(app_dir, data_dir)
+        .map_err(command_error)?
+        .data_dir
+        .join("history.jsonl"))
+}
+
+#[tauri::command]
+fn record_history(entry: serde_json::Value) -> Result<bool, String> {
+    let config = read_saved_config().unwrap_or_default();
+    if !config.history.enabled {
+        return Ok(false);
+    }
+
+    let mut entry = entry;
+    if let serde_json::Value::Object(map) = &mut entry {
+        if !map.contains_key("ts_ms") {
+            let ts = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
+            map.insert("ts_ms".to_string(), serde_json::json!(ts));
+        }
+    }
+
+    let line = serde_json::to_string(&entry).map_err(command_error)?;
+    nsh_core::append_history_line(history_path()?, &line).map_err(command_error)?;
+    Ok(true)
+}
+
 pub fn run() {
     tauri::Builder::default()
         .manage(PoetryState::default())
@@ -1150,7 +1188,8 @@ pub fn run() {
             search_poetry,
             match_poetry_from_text,
             answer_question,
-            answer_ai_channel
+            answer_ai_channel,
+            record_history
         ])
         .run(tauri::generate_context!())
         .expect("failed to run tauri application");

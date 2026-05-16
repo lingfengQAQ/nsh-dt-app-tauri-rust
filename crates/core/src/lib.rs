@@ -1,7 +1,8 @@
 ﻿use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::{
-    fs, io,
+    fs,
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 use url::Url;
@@ -36,6 +37,8 @@ pub struct AppConfig {
     pub ai_secondary: AIConfig,
     #[serde(default)]
     pub baidu_ocr: BaiduOcrConfig,
+    #[serde(default)]
+    pub history: HistoryConfig,
 }
 
 impl Default for AppConfig {
@@ -45,8 +48,15 @@ impl Default for AppConfig {
             ai: AIConfig::default(),
             ai_secondary: default_secondary_ai_config(),
             baidu_ocr: BaiduOcrConfig::default(),
+            history: HistoryConfig::default(),
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct HistoryConfig {
+    #[serde(default)]
+    pub enabled: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -192,6 +202,30 @@ pub fn write_config(path: impl AsRef<Path>, config: &AppConfig) -> Result<()> {
         source,
     })?;
     fs::write(path, content).map_err(|source| Error::Io {
+        path: path.to_path_buf(),
+        source,
+    })
+}
+
+pub fn append_history_line(path: impl AsRef<Path>, line: &str) -> Result<()> {
+    let path = path.as_ref();
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|source| Error::Io {
+            path: parent.to_path_buf(),
+            source,
+        })?;
+    }
+
+    let mut file = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)
+        .map_err(|source| Error::Io {
+            path: path.to_path_buf(),
+            source,
+        })?;
+
+    writeln!(file, "{line}").map_err(|source| Error::Io {
         path: path.to_path_buf(),
         source,
     })

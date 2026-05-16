@@ -22,6 +22,7 @@ const settingsTabs = [
   { key: 'ai', label: 'AI 设置', icon: '🤖' },
   { key: 'ocr', label: 'OCR 设置', icon: '📝' },
   { key: 'screenshot', label: '截图设置', icon: '◱' },
+  { key: 'history', label: '答题记录', icon: '📒' },
 ]
 
 function errorText(error) {
@@ -429,6 +430,14 @@ export default function App() {
       if (result.poetry_query) setPoetryQuery(result.poetry_query)
       if (result.question_type === 'poetry' && result.poetry_results.length > 0) {
         setStatus(`诗词题完成：诗词库 ${result.poetry_results.length} 条，AI 已跳过`)
+        recordHistoryEntry({
+          question_type: result.question_type,
+          question_text: text,
+          poetry_query: result.poetry_query,
+          poetry_results: result.poetry_results,
+          ai_answers: [],
+          timings: result.timings,
+        })
         return
       }
 
@@ -459,6 +468,17 @@ export default function App() {
       const aiSuccessCount = channelResults.filter((item) => item.answer).length
       const aiErrorCount = channelResults.length - aiSuccessCount
       setStatus(`AI 答题完成：成功 ${aiSuccessCount} / 出错 ${aiErrorCount}`)
+      recordHistoryEntry({
+        question_type: result.question_type,
+        question_text: text,
+        poetry_query: result.poetry_query,
+        poetry_results: result.poetry_results,
+        ai_answers: channelResults,
+        timings: {
+          ...result.timings,
+          ai_channel_ms: channelResults.map((r) => ({ channel: r.channel, ms: r.elapsed_ms })),
+        },
+      })
     } catch (error) {
       setStatus(`答题失败：${errorText(error)}`)
     } finally {
@@ -473,6 +493,26 @@ export default function App() {
     setPoetryQuery('')
     setPoetryResults([])
     setStatus('已清空，等待下一题')
+  }
+
+  async function recordHistoryEntry(entry) {
+    try {
+      await invoke('record_history', { entry })
+    } catch (error) {
+      console.warn('record_history failed:', error)
+    }
+  }
+
+  async function toggleHistoryEnabled(next) {
+    setSavingConfig(true)
+    try {
+      applyConfig(await invoke('save_config', { input: { history: { enabled: next } } }))
+      setStatus(next ? '答题记录已开启' : '答题记录已关闭')
+    } catch (error) {
+      setStatus(`保存记录开关失败：${errorText(error)}`)
+    } finally {
+      setSavingConfig(false)
+    }
   }
 
   async function copyBestAnswer() {
@@ -738,6 +778,41 @@ export default function App() {
                 </div>
                 <div className="settings-actions">
                   <button type="button" className="neo secondary" disabled={busy} onClick={toggleScreenshotSelector}>{selectorVisible ? '隐藏截图区域' : '打开截图区域'}</button>
+                </div>
+              </>
+            )}
+
+            {settingsTab === 'history' && (
+              <>
+                <header className="card-title shot-title">
+                  <h2>📒 答题记录</h2>
+                  <span>把答过的题写入 history.jsonl · 默认关闭</span>
+                </header>
+                <div className="setting-grid">
+                  <div className="setting-line">
+                    <strong>记录开关</strong>
+                    <span>
+                      开启后，每答完一题会在 <code>{configInfo?.config_file?.replace(/config\.json$/, 'history.jsonl') || 'data/history.jsonl'}</code> 追加一行 JSON，包含题目、诗词命中、AI 答案、各阶段耗时。
+                    </span>
+                  </div>
+                  <div className="setting-line">
+                    <strong>当前状态</strong>
+                    <span>{configInfo?.history?.enabled ? '✅ 已开启' : '⛔ 已关闭'}</span>
+                  </div>
+                  <div className="setting-line">
+                    <strong>隐私</strong>
+                    <span>记录仅写本地文件，不会上传任何服务器。API Key 不会写入。需要分析时可直接用 jq、Python pandas 等工具读取。</span>
+                  </div>
+                </div>
+                <div className="settings-actions">
+                  <button
+                    type="button"
+                    className={configInfo?.history?.enabled ? 'neo secondary' : 'neo primary'}
+                    disabled={savingConfig}
+                    onClick={() => toggleHistoryEnabled(!configInfo?.history?.enabled)}
+                  >
+                    {configInfo?.history?.enabled ? '关闭记录' : '开启记录'}
+                  </button>
                 </div>
               </>
             )}
