@@ -24,6 +24,12 @@ jobs:
       - name: Cache cargo registry & target
         uses: Swatinem/rust-cache@v2
 
+      - name: Create placeholder DB files
+        shell: bash
+        run: |
+          mkdir -p data
+          touch data/poetry.db data/poetry_clause_index.db
+
       - name: cargo fmt --check
         run: cargo fmt --all -- --check
 
